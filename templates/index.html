@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Disorder Classification Using Acoustic Features from ALS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-label {
+            display: block;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.drag-over {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-predict:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .processing {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .processing-text {
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .prediction-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .prediction-label {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .prediction-result {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .prediction-disease {
+            color: #e74c3c;
+        }
+
+        .prediction-healthy {
+            color: #27ae60;
+        }
+
+        .confidence-container {
+            margin-top: 15px;
+        }
+
+        .confidence-label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .confidence-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .probability-bars {
+            margin-top: 15px;
+        }
+
+        .prob-item {
+            margin-bottom: 10px;
+        }
+
+        .prob-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .prob-label-name {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .prob-label-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .prob-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .prob-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
+        .error-message {
+            display: none;
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            border-left: 4px solid #c62828;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #e8ebff;
+            color: #333;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Speech Disorder Classification</h1>
+        <p class="subtitle">Using Acoustic Features from ALS</p>
+
+        <div class="upload-section">
+            <label class="upload-label">Upload Audio File</label>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Click to upload or drag and drop</div>
+                <div class="upload-hint">WAV format only (max 50 MB)</div>
+                <input type="file" id="fileInput" accept=".wav" />
+            </div>
+            <div class="file-name" id="fileName"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-predict" id="predictBtn" disabled>Analyze Audio</button>
+            <button class="btn-clear" id="clearBtn">Clear</button>
+        </div>
+
+        <div class="processing" id="processing">
+            <div class="spinner"></div>
+            <div class="processing-text">Processing audio file...</div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">Classification Result</div>
+            <div class="prediction-box">
+                <div class="prediction-label">PREDICTION</div>
+                <div class="prediction-result" id="predictionResult"></div>
+                <div class="confidence-container">
+                    <div class="confidence-label">Confidence Score</div>
+                    <div class="confidence-value" id="confidenceValue"></div>
+                </div>
+            </div>
+            <div class="probability-bars" id="probabilityBars"></div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const predictBtn = document.getElementById('predictBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const processing = document.getElementById('processing');
+        const resultSection = document.getElementById('resultSection');
+        const errorMessage = document.getElementById('errorMessage');
+        const predictionResult = document.getElementById('predictionResult');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const probabilityBars = document.getElementById('probabilityBars');
+
+        let selectedFile = null;
+
+        // File upload handlers
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.name.endsWith('.wav')) {
+                showError('Please upload a WAV file');
+                return;
+            }
+            selectedFile = file;
+            fileName.textContent = `Selected: ${file.name}`;
+            predictBtn.disabled = false;
+            errorMessage.classList.remove('show');
+        }
+
+        predictBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                showError('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            processing.style.display = 'block';
+            resultSection.classList.remove('show');
+            errorMessage.classList.remove('show');
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showError(data.error || 'Error processing file');
+                } else {
+                    displayResult(data);
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                processing.style.display = 'none';
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            fileName.textContent = '';
+            predictBtn.disabled = true;
+            resultSection.classList.remove('show');
+            errorMessage.classList.remove('show');
+            uploadArea.classList.remove('drag-over');
+        });
+
+        function displayResult(data) {
+            const prediction = data.prediction;
+            const confidence = data.confidence;
+            const probability = data.probability;
+
+            // Update prediction
+            predictionResult.textContent = prediction;
+            predictionResult.className = 'prediction-result ' + (prediction === 'Disease' ? 'prediction-disease' : 'prediction-healthy');
+
+            // Update confidence
+            confidenceValue.textContent = confidence.toFixed(1) + '%';
+
+            // Update probability bars
+            probabilityBars.innerHTML = '';
+            for (const [label, value] of Object.entries(probability)) {
+                const percent = (value * 100).toFixed(1);
+                const probItem = document.createElement('div');
+                probItem.className = 'prob-item';
+                probItem.innerHTML = `
+                    <div class="prob-label">
+                        <span class="prob-label-name">${label}</span>
+                        <span class="prob-label-value">${percent}%</span>
+                    </div>
+                    <div class="prob-bar">
+                        <div class="prob-fill" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                probabilityBars.appendChild(probItem);
+            }
+
+            resultSection.classList.add('show');
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+    </script>
+</body>
+</html>
