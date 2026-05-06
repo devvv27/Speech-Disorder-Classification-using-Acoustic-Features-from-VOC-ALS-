@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALS Speech Disorder Classification - Project Methodology</title>
+  <style>
+    :root {
+      --bg: #f4f7f8;
+      --card: #ffffff;
+      --ink: #142126;
+      --muted: #4c616a;
+      --accent: #0f766e;
+      --accent-2: #0ea5a6;
+      --line: #d7e2e5;
+      --ok: #166534;
+      --warn: #92400e;
+      --shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Trebuchet MS", "Gill Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, #d9f0ed 0%, rgba(217, 240, 237, 0) 45%),
+        radial-gradient(circle at 90% 0%, #d9edf6 0%, rgba(217, 237, 246, 0) 35%),
+        var(--bg);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 32px auto 64px;
+      padding: 0 16px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f766e 0%, #155e75 100%);
+      color: #f8fffe;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      right: -120px;
+      top: -120px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 70ch;
+      color: #d7f4f2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+      padding: 18px 18px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+      color: #10323b;
+    }
+
+    h3 {
+      margin: 14px 0 8px;
+      font-size: 1rem;
+      color: #17424d;
+    }
+
+    p { margin: 0 0 10px; }
+
+    ul {
+      margin: 0 0 8px 20px;
+      padding: 0;
+    }
+
+    li { margin-bottom: 6px; }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .pill {
+      font-size: 0.82rem;
+      background: #e7f5f3;
+      color: #0f766e;
+      border: 1px solid #bee3df;
+      padding: 5px 8px;
+      border-radius: 999px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .step {
+      border: 1px dashed #b6ccd2;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #f9fcfc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      text-align: left;
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef7f7;
+      color: #123943;
+      font-weight: 700;
+    }
+
+    .note {
+      margin-top: 10px;
+      border-left: 4px solid var(--accent);
+      background: #eef9f8;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #1f3e46;
+    }
+
+    .warn {
+      border-left-color: #c07a1a;
+      background: #fff6e8;
+      color: #58380b;
+    }
+
+    .ok {
+      border-left-color: #3c9d5f;
+      background: #edf9f1;
+      color: #1f5130;
+    }
+
+    .muted { color: var(--muted); }
+
+    code {
+      background: #eef2f3;
+      border: 1px solid #d8e2e5;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 0.9em;
+    }
+
+    footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (min-width: 900px) {
+      .grid.two {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .flow {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .wrap { margin: 0; max-width: none; }
+      .hero { box-shadow: none; }
+      .card { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Methodology: ALS Speech Disorder Classification</h1>
+      <p class="subtitle">
+        Concise summary of how data is processed, features are extracted, models are trained,
+        and how the deployed web app performs real-time inference.
+      </p>
+    </section>
+
+    <div class="grid two">
+      <section class="card">
+        <h2>1. Objective and Data</h2>
+        <p>
+          The goal is to classify speech recordings as <strong>ALS</strong> or <strong>HC</strong> using acoustic features.
+          The training data is stored in <code>voc_als_acoustic_features_mapped.csv</code>, and only numeric acoustic columns are used for modeling.
+        </p>
+        <div class="pill-row">
+          <span class="pill">Task: Binary classification</span>
+          <span class="pill">Input: Original WAV</span>
+          <span class="pill">Output: Class + probability</span>
+          <span class="pill">Deployment: Flask web app</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Signal and Feature Logic</h2>
+        <p>
+          The extractor uses both the original and voiced-only versions of each file to compute complementary features.
+        </p>
+        <ul>
+          <li><strong>Original WAV:</strong> MFCC and MFCC-delta summaries.</li>
+          <li><strong>Voiced WAV (_OnlyVoiced):</strong> F0, formants, jitter, shimmer, HNR, intensity, and complexity features.</li>
+          <li>This matches the training-time feature extraction rule.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>3. Voiced Segmentation and Extraction Pipeline</h2>
+      <p>
+        For each uploaded original WAV, Praat scripts are run via Parselmouth to generate
+        <code>voiced/&lt;name&gt;_OnlyVoiced.wav</code>, then the canonical extractor computes the final feature row.
+      </p>
+      <div class="flow">
+        <div class="step"><strong>Step 1:</strong> Upload original <code>.wav</code>.</div>
+        <div class="step"><strong>Step 2:</strong> Create voiced file with <code>textgrid2py.praat</code> + <code>extract_voiced_segments.praat</code>.</div>
+        <div class="step"><strong>Step 3:</strong> Extract acoustic features using <code>extract_features.py</code>.</div>
+        <div class="step"><strong>Step 4:</strong> Clean/reindex feature vector for model input.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. Models Trained and Selected</h2>
+      <p>
+        Three baseline models were trained with standardized numeric features and an 80/20 stratified split:
+        Logistic Regression, SVM (RBF), and Random Forest.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Weighted F1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Logistic Regression</td>
+            <td>0.7778</td>
+            <td>0.7797</td>
+          </tr>
+          <tr>
+            <td>Random Forest</td>
+            <td>0.7516</td>
+            <td>0.7324</td>
+          </tr>
+          <tr>
+            <td>SVM (RBF)</td>
+            <td>0.7451</td>
+            <td>0.7176</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">
+        Logistic Regression is currently the deployed model in the web application.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5. Web Application Workflow</h2>
+      <p>
+        The Flask app receives an original WAV at <code>/predict</code>, extracts features with the same pipeline,
+        scales to training schema, and predicts using <code>logistic_regression_model.pkl</code>.
+      </p>
+      <div class="flow">
+        <div class="step"><strong>1.</strong> Upload original <code>.wav</code>.</div>
+        <div class="step"><strong>2.</strong> Create voiced file and extract full feature vector.</div>
+        <div class="step"><strong>3.</strong> Reindex and standardize features.</div>
+        <div class="step"><strong>4.</strong> Return prediction, probabilities, and confidence.</div>
+      </div>
+
+      <h3>Operational Note</h3>
+      <ul>
+        <li>If voiced extraction fails, the app may use fallback behavior; API response includes <code>fallback_used</code>.</li>
+        <li>Debug mode (<code>debug=1</code>) can expose extracted features for parity checks.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Short Conclusion</h2>
+      <p>
+        In summary, this project uses a consistent extraction strategy (original + voiced signals), compares three baseline
+        classifiers, and deploys Logistic Regression for real-time inference through a Flask web interface.
+      </p>
+    </section>
+
+    <footer>
+      Generated for the ALS Speech Project methodology documentation.
+    </footer>
+  </div>
+</body>
+</html>
