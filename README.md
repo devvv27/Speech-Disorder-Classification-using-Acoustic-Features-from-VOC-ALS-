@@ -26,10 +26,11 @@ This system analyzes voice recordings to classify whether a speaker has ALS or i
   - `train_svm.py` - Support Vector Machine
   - `train_lr_xgboost_top_features.py` - LR/XGBoost using selected features
 
-- **Deep Learning** (`CNNS/` folder):
-  - MobileNetV2 (`mobilenetv2.ipynb`)
-  - EfficientNet + ResNet-50 combination (`ellficientnet+Resent.ipynb`)
-  - Models trained on spectrograms
+- **Deep Learning CNN Models** (`CNNS/` folder):
+  - **MobileNetV2**: Lightweight model optimized for speed and efficiency
+  - **EfficientNet + ResNet-50**: Hybrid ensemble combining two powerful architectures
+  - Both trained on spectrograms (augmented and standard)
+  - Pre-trained weights fine-tuned on ALS dataset
 
 - **Web Application** (`app.py`): Flask-based UI for uploading audio and getting predictions
 
@@ -51,6 +52,31 @@ The system extracts several categories of acoustic features:
 - **Intensity**: Mean, standard deviation, coefficient of variation
 - **MFCCs**: Mel-frequency cepstral coefficients
 - **Temporal Features**: Complexity measures from trajectory analysis
+
+## Deep Learning Models (CNN)
+
+The project also explores deep learning approaches using convolutional neural networks trained on spectrograms:
+
+### MobileNetV2
+- Lightweight and fast inference
+- Good for real-time deployment
+- Trained on augmented spectrograms for better generalization
+- Model files: `best_mobilenetv2_als_ft.pth`, `best_mobilenetv2_als_p1.pth`
+- Development: `CNNS/MobileNet/mobilenetv2.ipynb`
+
+### EfficientNet + ResNet-50 Hybrid
+- More powerful ensemble combining two architectures
+- EfficientNet: Optimized scaling across depth, width, and resolution
+- ResNet-50: Deep residual network with skip connections
+- Better accuracy at cost of increased computation
+- Model files: `best_efficientnetv2-s_ft.pth`, `best_resnet-50_ft.pth`
+- Development: `CNNS/EfficientNet + Resnet/ellficientnet+Resent.ipynb`
+
+### Training Approach
+- Models use transfer learning from ImageNet pre-trained weights
+- Fine-tuned on VOC-ALS spectrograms (both standard and augmented)
+- Backbone frozen initially, then fine-tuned based on performance
+- Dropout regularization to prevent overfitting
 
 ## Getting Started
 
@@ -74,12 +100,20 @@ Then open your browser to `http://localhost:5000`
 
 ## Model Performance
 
-Each model has been trained and evaluated. Results saved in:
-- `logistic_regression_results.csv`
-- `random_forest_results.csv`
-- `xgboost_results.csv`
-- `svm_rbf_results.csv`
-- `lr_xgboost_top_features_results.csv`
+Multiple approaches were tested to find the best balance between accuracy and performance:
+
+**Traditional ML Models:**
+- `logistic_regression_results.csv` - Fast, interpretable baseline
+- `random_forest_results.csv` - Tree ensemble with feature importance
+- `xgboost_results.csv` - Gradient boosting for better accuracy
+- `svm_rbf_results.csv` - Support vector machine with RBF kernel
+- `lr_xgboost_top_features_results.csv` - Models using selected important features
+
+**Deep Learning Models:**
+- MobileNetV2 - Fast inference, moderate accuracy
+- EfficientNet + ResNet-50 - Highest accuracy, longer inference time
+
+Each model was trained using 5-fold cross-validation and evaluated on the test set.
 
 ## Key Files
 
