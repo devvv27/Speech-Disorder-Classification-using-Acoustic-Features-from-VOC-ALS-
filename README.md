@@ -78,6 +78,28 @@ The project also explores deep learning approaches using convolutional neural ne
 - Backbone frozen initially, then fine-tuned based on performance
 - Dropout regularization to prevent overfitting
 
+## Web Application: Dual Pipeline Architecture
+
+The web app implements a **dual pipeline approach**, letting you choose between two classification methods:
+
+### Pipeline 1: Audio → Logistic Regression (LR)
+- Upload raw `.wav` audio file
+- System extracts 115+ acoustic features in real-time
+- Fast inference (5-30 seconds depending on audio length)
+- Provides confidence scores and key feature values
+
+### Pipeline 2: Spectrogram → CNN (MobileNet)
+- Upload spectrogram image (PNG, JPG, or JPEG)
+- Deep learning model analyzes visual patterns
+- Good for comparative analysis and validation
+- Switch between pipelines without restarting
+
+![Audio-LR Pipeline](audio_lr_pipeline.png)
+*Audio-based analysis with acoustic features displayed*
+
+![Spectrogram-CNN Pipeline](spectrogram_cnn_pipeline.png)
+*Spectrogram-based CNN analysis with visual classification*
+
 ## Getting Started
 
 ### Requirements
@@ -96,7 +118,7 @@ python app.py
 
 Then open your browser to `http://localhost:5000`
 
-**Upload an audio file** → **Click Analyze** → **Get prediction with confidence score**
+**Choose pipeline** → **Upload file** → **Click Analyze** → **View results with confidence and probability distribution**
 
 ## Model Performance
 
@@ -115,6 +137,33 @@ Multiple approaches were tested to find the best balance between accuracy and pe
 
 Each model was trained using 5-fold cross-validation and evaluated on the test set.
 
+## Application Features
+
+### User Interface
+- **Tabbed Navigation**: Easy switching between Audio-LR and Spectrogram-CNN pipelines
+- **Drag-and-Drop Upload**: Intuitive file upload with visual feedback
+- **Clear Results Display**: 
+  - Large prediction indicator (Disease/ALS or No Disease/HC)
+  - Confidence percentage highlighted
+  - Probability bar chart for both classes
+- **Explainability** (Audio-LR only):
+  - Shows top 4-6 contributing acoustic features
+  - Displays actual feature values for interpretation
+- **Reset Button**: Easily clear and start new analysis
+- **Professional Design**: Clean, responsive interface
+
+### Results Interpretation
+- **Confidence Score**: 0-100% probability of the prediction
+- **Probability Distribution**: Visual breakdown showing both class probabilities
+- **Key Features** (LR only): Which acoustic measurements influenced the decision
+- **Feature Values**: Actual numerical values extracted from the audio
+
+### Technical Architecture
+- **Frontend**: HTML/CSS responsive design (see `templates/index.html`)
+- **Backend**: Flask server handling file uploads and processing
+- **Feature Extraction**: Praat integration via Parselmouth library
+- **Models**: Pre-trained pickled models loaded at startup
+
 ## Key Files
 
 | File | Purpose |
@@ -128,18 +177,50 @@ Each model was trained using 5-fold cross-validation and evaluated on the test s
 
 ## How It Works
 
-1. **Input**: User uploads a `.wav` audio file
-2. **Processing**: Praat extracts 115+ acoustic features in real-time
-3. **Prediction**: Pre-trained model classifies as "Disease" or "No Disease"
-4. **Output**: Classification result with confidence score
+### Audio-LR Pipeline
+1. **Input**: Upload `.wav` audio file
+2. **Feature Extraction**: Praat automatically extracts 115+ acoustic features in real-time
+3. **Prediction**: Logistic Regression model scores the extracted features
+4. **Output**: 
+   - Classification result (Disease / No Disease)
+   - Confidence percentage
+   - Probability distribution chart
+   - Top contributing acoustic features displayed
 
-## Limitations
+### Spectrogram-CNN Pipeline
+1. **Input**: Upload spectrogram image (PNG, JPG, JPEG)
+2. **Processing**: Image fed to pre-trained MobileNet/EfficientNet model
+3. **Prediction**: CNN classifies based on visual spectrogram patterns
+4. **Output**:
+   - Classification result (ALS / HC - Healthy Control)
+   - Confidence percentage
+   - Visual probability distribution
 
-- Audio files must be `.wav` format
-- Maximum file size: 50 MB
-- Processing time: 10-30 seconds (depends on audio length)
-- Model trained on vowel sounds specifically
-- Requires good audio quality for accurate feature extraction
+### Why Dual Pipeline?
+- **Audio-LR**: Explainable results, shows which acoustic features matter most
+- **Spectrogram-CNN**: Direct visual analysis, captures complex patterns
+- **Comparison**: Compare predictions between methods for validation
+- **Research**: Understand differences in how models interpret the same data
+
+## Important Notes
+
+### Supported Formats & Limitations
+- **Audio**: `.wav` format only (max 50 MB)
+- **Spectrogram Images**: PNG, JPG, JPEG (max 50 MB)
+- **Processing Time**: 10-30 seconds for audio, <5 seconds for spectrogram
+- **Audio Quality**: Best results with clear, noise-free recordings
+- **Dataset Focus**: Model trained on vowel sounds (A, E, I, O, U)
+
+### When to Use Each Pipeline
+- **Audio-LR**: When you want to understand which acoustic features are important
+- **Spectrogram-CNN**: For direct visual analysis or when you have pre-generated spectrograms
+- **Both**: For validation and comparative analysis
+
+### Accuracy Considerations
+- Model trained on VOC-ALS dataset (763 samples)
+- Results are predictions, not medical diagnoses
+- Different audio quality/microphones may affect results
+- Ensemble comparison (both pipelines) improves confidence
 
 ## Project Files
 
@@ -149,4 +230,7 @@ Each model was trained using 5-fold cross-validation and evaluated on the test s
 
 ---
 
-**Note**: Pre-trained models must be in the project root directory for the web app to function. The system uses the Logistic Regression model by default for predictions.
+**Note**: Pre-trained models must be in the project root directory for the web app to function. The system uses the Logistic Regression model by default for audio pipeline and MobileNetV2 for spectrogram pipeline.
+
+### Image References
+Place `audio_lr_pipeline.png` and `spectrogram_cnn_pipeline.png` in the project root directory to display the interface examples in this README.
